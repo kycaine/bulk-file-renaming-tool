@@ -477,44 +477,55 @@ async function applyRenameAction() {
     const renameCount = renameResults.length;
 
     if (currentFiles[0] && currentFiles[0].path) {
-        if (!confirm(`Are you sure you want to rename ${renameCount} files?`)) {
+        if (!confirm(`Are you sure you want to copy ${renameCount} files with new names to a folder? (Original files will not be changed)`)) {
             return;
         }
 
         try {
-            const renames = [];
+            const copies = [];
+            let sourceFolderPath = '';
+            
             for (let i = 0; i < renameCount; i++) {
                 const file = currentFiles[i];
                 const newName = renameResults[i].new;
                 const oldPath = file.path;
                 
-                const newPath = await ipcRenderer.invoke('file:getNewPath', oldPath, newName);
+                if (i === 0) {
+                    const lastSlash = oldPath.lastIndexOf('/');
+                    const lastBackslash = oldPath.lastIndexOf('\\');
+                    const lastSeparator = Math.max(lastSlash, lastBackslash);
+                    sourceFolderPath = oldPath.substring(0, lastSeparator);
+                }
                 
-                renames.push({ oldPath, newPath });
+                copies.push({ oldPath, newName });
             }
 
-            const results = await ipcRenderer.invoke('file:renameFiles', renames);
+            const result = await ipcRenderer.invoke('file:copyFilesToFolder', copies, sourceFolderPath);
             
-            let successCount = 0;
-            let failedFiles = [];
-            
-            results.forEach(result => {
-                if (result.success) {
-                    successCount++;
-                } else {
-                    failedFiles.push(`${result.oldPath}: ${result.error}`);
-                }
-            });
+            if (result.success) {
+                let successCount = 0;
+                let failedFiles = [];
+                
+                result.results.forEach(item => {
+                    if (item.success) {
+                        successCount++;
+                    } else {
+                        failedFiles.push(`${item.oldPath}: ${item.error}`);
+                    }
+                });
 
-            if (failedFiles.length > 0) {
-                alert(`Renamed ${successCount} files successfully.\n\nFailed files:\n${failedFiles.join('\n')}`);
+                if (failedFiles.length > 0) {
+                    alert(`Copied ${successCount} files successfully to:\n${result.outputFolder}\n\nFailed files:\n${failedFiles.join('\n')}`);
+                } else {
+                    alert(`Successfully copied all ${successCount} files with new names!\n\nFolder: ${result.outputFolder}`);
+                }
             } else {
-                alert(`Successfully renamed all ${successCount} files!`);
+                alert(`Error: ${result.error}`);
             }
 
             btnClearFiles.click();
         } catch (error) {
-            alert(`Error during rename: ${error.message}`);
+            alert(`Error during copy: ${error.message}`);
         }
     } else {
         if (!confirm(`Are you sure you want to compress and download ${renameCount} files with new names?`)) {

@@ -124,6 +124,32 @@ ipcMain.handle('file:renameFiles', async (event, renames) => {
   return results;
 });
 
+ipcMain.handle('file:copyFilesToFolder', async (event, copies, sourceFolderPath) => {
+  try {
+    const outputFolderName = `renamed_files_${new Date().toISOString().split('T')[0]}`;
+    const outputPath = path.join(sourceFolderPath, outputFolderName);
+    
+    if (!fs.existsSync(outputPath)) {
+      fs.mkdirSync(outputPath, { recursive: true });
+    }
+
+    const results = [];
+    for (const { oldPath, newName } of copies) {
+      try {
+        const newPath = path.join(outputPath, newName);
+        fs.copyFileSync(oldPath, newPath);
+        results.push({ oldPath, newPath, success: true });
+      } catch (error) {
+        results.push({ oldPath, newPath: '', success: false, error: error.message });
+      }
+    }
+    
+    return { success: true, outputFolder: outputPath, results };
+  } catch (error) {
+    return { success: false, error: error.message, results: [] };
+  }
+});
+
 ipcMain.handle('file:getNewPath', async (event, oldPath, newName) => {
     const dir = path.dirname(oldPath);
     return path.join(dir, newName);
