@@ -5,14 +5,17 @@ Bulk File Renaming Tool is a smart and fast application for mass file renaming.
 It can run as an Electron Desktop App or as a Web App in the browser.
 
 The tool is designed to help users clean up, standardize, and organize large numbers of files efficiently.
-## 🚀 Quick Start
 
-### Desktop App (Electron)
-```bash
-npm install
-npm start
-```
-Features
+## 🚀 Running the App
+- install node 18 or later, 20 is better
+- open terminal in root project directory, which contain package.json file
+- run this command in terminal :
+``` npm install ```
+and
+``` npm run dev ```
+
+
+## Features
 
 This application allows you to:
 
