@@ -1,0 +1,23 @@
+{
+  "name": "bulk-file-renaming-tool",
+  "version": "1.0.0",
+  "description": "Smart bulk file renaming tool with pattern detection",
+  "main": "main-electron.js",
+  "author": "",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "electron:dev": "electron . --inspect=5858"
+  },
+  "dependencies": {
+    "electron": "^31.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}
